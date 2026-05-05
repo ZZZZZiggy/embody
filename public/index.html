@@ -90,31 +90,10 @@
         0 30px 60px rgba(0,0,0,0.55),
         0 0 0 1px rgba(220, 230, 240, 0.08) inset,
         0 0 80px var(--c1);
-      transition: --c1 0.8s, --c2 0.8s, transform 0.4s, box-shadow 0.6s;
-      animation: spin 80s linear infinite;
-      animation-play-state: paused;
+      transition: --c1 0.8s, --c2 0.8s, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s;
       transform: scale(0.95);
     }
-    .cover.playing {
-      animation-play-state: running;
-      transform: scale(1);
-    }
-    .cover::after {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 14px; height: 14px;
-      margin: -7px 0 0 -7px;
-      border-radius: 50%;
-      background: rgba(17, 17, 27, 0.7);
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.08);
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .cover.playing { animation: spin 80s linear infinite, scale-in 0.4s ease forwards; }
-    @keyframes scale-in {
-      from { transform: scale(0.95); }
-      to   { transform: scale(1); }
-    }
+    .cover.playing { transform: scale(1); }
 
     .meta { flex: 0 0 auto; padding: 18px 4px 6px; }
     .title {
@@ -244,6 +223,111 @@
     .conn.online .conn-dot {
       background: #a6e3a1;
       box-shadow: 0 0 8px #a6e3a1;
+    }
+
+    .brain {
+      flex: 0 0 auto;
+      padding: 4px 0 6px;
+    }
+    .brain-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0 2px;
+      margin-bottom: 4px;
+      font-size: 10px;
+      letter-spacing: 0.6px;
+    }
+    .brain-label {
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      opacity: 0.5;
+    }
+    .brain-readout {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      opacity: 0.55;
+      letter-spacing: 0.3px;
+    }
+    .brain-readout .brain-faa-label { opacity: 0.5; margin-right: 4px; }
+    .brain-readout .brain-faa-value {
+      color: #fff;
+      transition: color 0.4s ease;
+    }
+    .brain-readout.positive .brain-faa-value { color: #cba6f7; }
+    .brain-readout.negative .brain-faa-value { color: #f5b8c4; }
+    .brain-chart {
+      position: relative;
+      height: 44px;
+      overflow: hidden;
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(200,210,225,0.025) 0%, rgba(200,210,225,0.01) 100%);
+    }
+    .brain-chart svg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: block;
+      overflow: visible;
+    }
+    .brain-zero {
+      stroke: rgba(200, 210, 225, 0.16);
+      stroke-width: 1;
+      stroke-dasharray: 2 3;
+      vector-effect: non-scaling-stroke;
+    }
+    .brain-fill {
+      fill: url(#brainFillGrad);
+      opacity: 0.5;
+    }
+    .brain-curve {
+      fill: none;
+      stroke: rgba(230, 235, 245, 0.85);
+      stroke-width: 1.5;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      vector-effect: non-scaling-stroke;
+      filter: drop-shadow(0 0 4px rgba(220, 225, 235, 0.4));
+    }
+    .brain-now {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+      pointer-events: none;
+    }
+    .brain-playhead {
+      position: absolute;
+      right: 0;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow:
+        0 0 6px rgba(255, 255, 255, 0.9),
+        0 0 14px rgba(220, 225, 235, 0.5);
+      transform: translate(50%, -50%);
+      top: 50%;
+      pointer-events: none;
+      opacity: 0;
+      transition: top 0.25s ease, background 0.4s ease, opacity 0.5s, box-shadow 0.4s;
+    }
+    .brain-chart.ready .brain-playhead { opacity: 1; }
+    .brain-playhead.positive {
+      background: #d8c8f0;
+      box-shadow: 0 0 8px rgba(203, 166, 247, 0.9), 0 0 16px rgba(203, 166, 247, 0.45);
+    }
+    .brain-playhead.negative {
+      background: #f5b8c4;
+      box-shadow: 0 0 8px rgba(243, 139, 168, 0.9), 0 0 16px rgba(243, 139, 168, 0.4);
+    }
+    .brain-axis {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+      opacity: 0.32;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-top: 4px;
+      font-weight: 600;
+      padding: 0 2px;
     }
 
     .banner {
@@ -381,6 +465,34 @@
     <div class="meta">
       <div class="title" id="title">—</div>
       <div class="subtitle" id="subtitle">— · —</div>
+    </div>
+
+    <div class="brain">
+      <div class="brain-head">
+        <span class="brain-label">your brain · last 60s</span>
+        <span class="brain-readout" id="brainReadout">
+          <span class="brain-faa-label">FAA</span><span class="brain-faa-value" id="brainFaaValue">—</span>
+        </span>
+      </div>
+      <div class="brain-chart" id="brainChart">
+        <svg id="brainSvg" viewBox="0 0 600 44" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="brainFillGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="rgba(220,225,235,0.30)"/>
+              <stop offset="100%" stop-color="rgba(220,225,235,0)"/>
+            </linearGradient>
+          </defs>
+          <line class="brain-zero" id="brainZero" x1="0" y1="22" x2="600" y2="22"/>
+          <path class="brain-fill"  id="brainFill"/>
+          <path class="brain-curve" id="brainPath"/>
+        </svg>
+        <div class="brain-now"></div>
+        <div class="brain-playhead" id="brainPlayhead"></div>
+      </div>
+      <div class="brain-axis">
+        <span>− 60 s</span>
+        <span>now</span>
+      </div>
     </div>
 
     <div class="progress">
@@ -571,8 +683,84 @@
       welcomeEl.classList.add('hidden');
     });
 
+    let brain = null;
+    const VIEW_W = 600, VIEW_H = 44, PAD_Y = 5;
+    const WINDOW_SEC = 60, SAMPLES = 120;
+    const STEP_SEC = WINDOW_SEC / (SAMPLES - 1);
+
+    async function loadBrain() {
+      try {
+        const data = await fetch('faa_timeline.json').then(r => r.json());
+        // Use the music-phase slice as the source for live "current music effect"
+        const faa = data.faa.slice(data.boundaries.cyberball_end, data.boundaries.music_end);
+        const min = Math.min(...faa);
+        const max = Math.max(...faa);
+        const span = (max - min) || 1;
+        const yMin = min - span * 0.15;
+        const yMax = max + span * 0.15;
+        const range = yMax - yMin;
+        const yFor = (v) => PAD_Y + (1 - (v - yMin) / range) * (VIEW_H - 2 * PAD_Y);
+
+        $('brainZero').setAttribute('y1', yFor(0).toFixed(2));
+        $('brainZero').setAttribute('y2', yFor(0).toFixed(2));
+
+        brain = { faa, n: faa.length, yFor };
+        $('brainChart').classList.add('ready');
+      } catch (err) {
+        console.warn('brain timeline unavailable:', err);
+      }
+    }
+
+    function brainValueAt(t) {
+      if (!brain || !audio.duration || t < 0) return null;
+      const idx = (t / audio.duration) * (brain.n - 1);
+      if (idx > brain.n - 1) return null;
+      const i0 = Math.floor(idx);
+      const i1 = Math.min(brain.n - 1, i0 + 1);
+      const f = idx - i0;
+      return brain.faa[i0] * (1 - f) + brain.faa[i1] * f;
+    }
+
+    function tickBrain() {
+      if (brain) {
+        const now = audio.currentTime || 0;
+        const pts = new Array(SAMPLES);
+        for (let i = 0; i < SAMPLES; i++) {
+          const t = now - (SAMPLES - 1 - i) * STEP_SEC;
+          pts[i] = brainValueAt(t);
+        }
+        let path = '', inPath = false;
+        for (let i = 0; i < SAMPLES; i++) {
+          const v = pts[i];
+          if (v == null || isNaN(v)) { inPath = false; continue; }
+          const x = (i / (SAMPLES - 1)) * VIEW_W;
+          const y = brain.yFor(v);
+          path += `${inPath ? 'L' : 'M'}${x.toFixed(2)} ${y.toFixed(2)} `;
+          inPath = true;
+        }
+        $('brainPath').setAttribute('d', path);
+
+        const current = pts[SAMPLES - 1];
+        const ph = $('brainPlayhead');
+        const readout = $('brainReadout');
+        const valueEl = $('brainFaaValue');
+        if (current != null && !isNaN(current)) {
+          ph.style.top = (brain.yFor(current) / VIEW_H * 100) + '%';
+          const positive = current >= 0;
+          ph.classList.toggle('positive', positive);
+          ph.classList.toggle('negative', !positive);
+          readout.classList.toggle('positive', positive);
+          readout.classList.toggle('negative', !positive);
+          valueEl.textContent = (positive ? '+' : '') + current.toFixed(2);
+        }
+      }
+      requestAnimationFrame(tickBrain);
+    }
+
     loadTrack(0);
     connectSSE();
+    loadBrain();
+    requestAnimationFrame(tickBrain);
   </script>
 </body>
 </html>
